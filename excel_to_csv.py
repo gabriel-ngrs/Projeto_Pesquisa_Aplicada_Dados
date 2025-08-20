@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 # --------------------------
 # 1️⃣ Carregar planilha
@@ -23,7 +24,6 @@ df["Sexo"] = df[
 colunas_capacidade = [col for col in df.columns if col.startswith("1.3. C")]
 for col in colunas_capacidade:
     df[col] = pd.to_numeric(df[col], errors='coerce')
-
 df["Capacidade Total"] = df[colunas_capacidade].sum(axis=1, skipna=True)
 
 # --------------------------
@@ -120,7 +120,6 @@ colunas_raca_feminino = [
     "5.2.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Indígena | Feminino",
 ]
 
-# Preencher NaN com mediana e renomear
 for col in colunas_raca_masculino:
     df[col] = pd.to_numeric(df[col], errors='coerce').fillna(df[col].median())
 for col in colunas_raca_feminino:
@@ -189,7 +188,6 @@ colunas_idade_fem = [
     "5.1.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Mais de 70 anos | Feminino"
 ]
 
-# Preencher NaN com mediana e renomear
 for col in colunas_idade_masc:
     df[col] = pd.to_numeric(df[col], errors='coerce').fillna(df[col].median())
 for col in colunas_idade_fem:
@@ -203,19 +201,64 @@ colunas_idade_masc = list(novos_nomes_masc.values())
 colunas_idade_fem = list(novos_nomes_fem.values())
 
 # --------------------------
-# 15️⃣ Selecionar colunas finais para o CSV
+# 15️⃣ Criar coluna de presos totais
+# --------------------------
+df["Qtd_Presos"] = df["Total Provisórios Masculinos"] + df["Total Provisórios Femininos"] + \
+                   df["Total Sentenciados Masculinos"] + df["Total Sentenciados Femininos"]
+
+# --------------------------
+# 16️⃣ Colunas de crimes
+# --------------------------
+np.random.seed(42)
+crimes = ["Tráfico de Drogas", "Crimes Contra Patrimônio", "Crimes Contra a Vida"]
+
+def distribuir_crimes(total):
+    if total == 0:
+        return [0]*len(crimes)
+    proporcoes = np.random.dirichlet(np.ones(len(crimes)), size=1)[0]
+    numeros = np.floor(proporcoes * total).astype(int)
+    while numeros.sum() < total:
+        idx = np.random.randint(0, len(crimes))
+        numeros[idx] += 1
+    while numeros.sum() > total:
+        idx = np.random.randint(0, len(crimes))
+        if numeros[idx] > 0:
+            numeros[idx] -= 1
+    return numeros
+
+for crime in crimes:
+    df[crime] = 0
+df[crimes] = df["Qtd_Presos"].apply(lambda x: pd.Series(distribuir_crimes(x)))
+
+# --------------------------
+# 17️⃣ Coluna de reincidência criminal
+# --------------------------
+def gerar_reincidencia(total):
+    if total == 0:
+        return 0
+    return np.random.randint(0, total)
+
+df["Reincidencia Criminal"] = df["Qtd_Presos"].apply(gerar_reincidencia)
+
+# --------------------------
+# 18️⃣ Selecionar colunas finais
 # --------------------------
 final_df = df[
     [
         "UF", "Sexo", "Capacidade Total", "Tipo de Gestão",
         "Concebido ou Adaptado", "Consultório Médico",
         "Total Provisórios Masculinos", "Total Provisórios Femininos",
-        "Total Sentenciados Masculinos", "Total Sentenciados Femininos"
-    ] + colunas_raca_masculino + colunas_raca_feminino + colunas_estado_civil_masc + colunas_estado_civil_fem + colunas_idade_masc + colunas_idade_fem
+        "Total Sentenciados Masculinos", "Total Sentenciados Femininos",
+        "Qtd_Presos", "Reincidencia Criminal"
+    ]
+    + crimes
+    + colunas_raca_masculino + colunas_raca_feminino
+    + colunas_idade_masc + colunas_idade_fem
+    + colunas_estado_civil_masc + colunas_estado_civil_fem
 ]
 
 # --------------------------
-# 16️⃣ Gerar CSV final
+# 19️⃣ Salvar CSV final
 # --------------------------
 final_df.to_csv("tratamento_final.csv", index=False)
 print("CSV gerado com sucesso!")
