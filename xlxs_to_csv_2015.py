@@ -73,28 +73,64 @@ df["Total Provisórios Femininos"] = df[colunas_provisorios_fem].apply(pd.to_num
 # 10️⃣ Total de presos sentenciados masculinos
 # --------------------------
 colunas_sentenciados_masc = [
-    "4.1.2.M. População prisional | regime fechado | MASCULINO | Justiça Estadual",
-    "4.1.2.M. População prisional | regime fechado | MASCULINO | Justiça Federal",
-    "4.1.2.M. População prisional | regime fechado | MASCULINO | Outros (Justiça do Trabalho, Cível)",
+    "4.1.2.M. População prisional | regime fechado | MASCULINO | Justiça Estadual",
+    "4.1.2.M. População prisional | regime fechado | MASCULINO | Justiça Federal",
+    "4.1.2.M. População prisional | regime fechado | MASCULINO | Outros (Justiça do Trabalho, Cível)",
     "4.1.3.M. População prisional | regime semiaberto | MASCULINO | Justiça Estadual",
     "4.1.3.M. População prisional | regime semiaberto | MASCULINO | Justiça Federal",
     "4.1.3.M. População prisional | regime semiaberto | MASCULINO | Outros (Justiça do Trabalho, Cível)",
-    "4.1.4.M. População prisional | regime aberto | MASCULINO | Justiça Estadual",
-    "4.1.4.M. População prisional | regime aberto | MASCULINO | Justiça Federal",
-    "4.1.4.M. População prisional | regime aberto    | MASCULINO | Outros (Justiça do Trabalho, Cível)"
+    "4.1.4.M. População prisional | regime aberto | MASCULINO | Justiça Estadual",
+    "4.1.4.M. População prisional | regime aberto | MASCULINO | Justiça Federal",
+    "4.1.4.M. População prisional | regime aberto | MASCULINO | Outros (Justiça do Trabalho, Cível)"
 ]
 df["Total Sentenciados Masculinos"] = df[colunas_sentenciados_masc].apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
 
+# --------------------------
+# 11️⃣ Total de presos sentenciados femininos
+# --------------------------
+colunas_sentenciados_fem = [
+    "4.1.2.F. População prisional | regime fechado | FEMININO | Justiça Estadual",
+    "4.1.2.F. População prisional | regime fechado | FEMININO | Justiça Federal",
+    "4.1.2.F. População prisional | regime fechado | FEMININO | Outros (Justiça do Trabalho, Cível)",
+    "4.1.3.F. População prisional | regime semiaberto | FEMININO | Justiça Estadual",
+    "4.1.3.F. População prisional | regime semiaberto | FEMININO | Justiça Federal",
+    "4.1.3.F. População prisional | regime semiaberto | FEMININO | Outros (Justiça do Trabalho, Cível)",
+    "4.1.4.F. População prisional | regime aberto | FEMININO | Justiça Estadual",
+    "4.1.4.F. População prisional | regime aberto | FEMININO | Justiça Federal",
+    "4.1.4.F. População prisional | regime aberto | FEMININO | Outros (Justiça do Trabalho, Cível)"
+]
+df["Total Sentenciados Femininos"] = df[colunas_sentenciados_fem].apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
 
+# --------------------------
+# 12️⃣ Colunas de raça e sexo
+# --------------------------
+colunas_raca_masculino = [
+    "5.2.1.M. Cor de pele/raça/etnia | MASCULINO | Branca",
+    "5.2.1.M. Cor de pele/raça/etnia | MASCULINO | Preta",
+    "5.2.1.M. Cor de pele/raça/etnia | MASCULINO | Parda",
+    "5.2.1.M. Cor de pele/raça/etnia | MASCULINO | Amarela",
+    "5.2.1.M. Cor de pele/raça/etnia | MASCULINO | Indígena"
+]
 
+colunas_raca_feminino = [
+    "5.2.1.F. Cor de pele/raça/etnia | FEMININO | Branca",
+    "5.2.1.F. Cor de pele/raça/etnia | FEMININO | Preta",
+    "5.2.1.F. Cor de pele/raça/etnia | FEMININO | Parda",
+    "5.2.1.F. Cor de pele/raça/etnia | FEMININO | Amarela",
+    "5.2.1.F. Cor de pele/raça/etnia | FEMININO | Indígena",
+]
 
+for col in colunas_raca_masculino:
+    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(df[col].median())
+for col in colunas_raca_feminino:
+    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(df[col].median())
 
+novos_nomes_masc = {col: col.split("|")[1].strip() + " Masculino" for col in colunas_raca_masculino}
+novos_nomes_fem = {col: col.split("|")[1].strip() + " Feminino" for col in colunas_raca_feminino}
+df.rename(columns={**novos_nomes_masc, **novos_nomes_fem}, inplace=True)
 
-
-
-
-
-
+colunas_raca_masculino = list(novos_nomes_masc.values())
+colunas_raca_feminino = list(novos_nomes_fem.values())
 
 
 
