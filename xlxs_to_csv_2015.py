@@ -83,7 +83,12 @@ colunas_sentenciados_masc = [
     "4.1.4.M. População prisional | regime aberto | MASCULINO | Justiça Federal",
     "4.1.4.M. População prisional | regime aberto | MASCULINO | Outros (Justiça do Trabalho, Cível)"
 ]
-df["Total Sentenciados Masculinos"] = df[colunas_sentenciados_masc].apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
+
+# Filtra apenas colunas que existem no df
+colunas_sentenciados_masc = [c for c in colunas_sentenciados_masc if c in df.columns]
+
+df["Total Sentenciados Masculinos"] = df[colunas_sentenciados_masc] \
+    .apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
 
 # --------------------------
 # 11️⃣ Total de presos sentenciados femininos
@@ -99,8 +104,13 @@ colunas_sentenciados_fem = [
     "4.1.4.F. População prisional | regime aberto | FEMININO | Justiça Federal",
     "4.1.4.F. População prisional | regime aberto | FEMININO | Outros (Justiça do Trabalho, Cível)"
 ]
-df["Total Sentenciados Femininos"] = df[colunas_sentenciados_fem].apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
 
+# Filtra apenas colunas que existem no df
+colunas_sentenciados_fem = [c for c in colunas_sentenciados_fem if c in df.columns]
+
+df["Total Sentenciados Femininos"] = df[colunas_sentenciados_fem] \
+    .apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
+"""
 # --------------------------
 # 12️⃣ Colunas de raça e sexo
 # --------------------------
@@ -131,24 +141,59 @@ df.rename(columns={**novos_nomes_masc, **novos_nomes_fem}, inplace=True)
 
 colunas_raca_masculino = list(novos_nomes_masc.values())
 colunas_raca_feminino = list(novos_nomes_fem.values())
+"""
+"""
+# --------------------------
+# 13️⃣ Colunas de estado civil
+# --------------------------
+colunas_estado_civil_masc = [
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Swifiolteiro/a | Masculino",
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | União estável/ amasiado | Masculino",
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Casado/a | Masculino",
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Separado/a judicialmente | Masculino",
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Divorciado/a | Masculino",
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Viúvo/a | Masculino"
+]
 
+colunas_estado_civil_fem = [
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Solteiro/a | Feminino",
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | União estável/ amasiado | Feminino",
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Casado/a | Feminino",
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Separado/a judicialmente | Feminino",
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Divorciado/a | Feminino",
+    "5.3.a. Em caso positivo, total ou parcialmente, preencha as informações abaixo: | Viúvo/a | Feminino"
+]
 
+for col in colunas_estado_civil_masc:
+    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(df[col].median())
+for col in colunas_estado_civil_fem:
+    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(df[col].median())
 
+novos_nomes_masc = {col: col.split("|")[1].strip() + " Masculino" for col in colunas_estado_civil_masc}
+novos_nomes_fem = {col: col.split("|")[1].strip() + " Feminino" for col in colunas_estado_civil_fem}
+df.rename(columns={**novos_nomes_masc, **novos_nomes_fem}, inplace=True)
 
+colunas_estado_civil_masc = list(novos_nomes_masc.values())
+colunas_estado_civil_fem = list(novos_nomes_fem.values())
+"""
 
-
-
-
-
-
+# Seleciona todas as colunas que começam com '5.3.M.'
+colunas_estado_civil_masc = [
+    col for col in df.columns 
+    if col.startswith("5.3.M.") 
+    and col != "5.3.M. Estado civil | MASCULINO | Estado civil não informado"
+]
+print(colunas_estado_civil_masc)
 
 # --------------------------
 # 18️⃣ Selecionar colunas finais
 # --------------------------
 final_df = df[
     [
-        "UF","Sexo","Capacidade Total","Tipo de Gestão","Concebido ou Adaptado","Consultório Médico"
-    ]
+        "UF","Sexo","Capacidade Total","Tipo de Gestão","Concebido ou Adaptado","Consultório Médico", "Total Provisórios Masculinos", "Total Provisórios Femininos", "Total Sentenciados Masculinos", "Total Sentenciados Femininos",
+    ] 
+    # + colunas_raca_masculino + colunas_raca_feminino
+
 ]
 
 
