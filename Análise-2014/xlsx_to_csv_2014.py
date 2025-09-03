@@ -203,8 +203,7 @@ colunas_idade_fem = list(novos_nomes_fem.values())
 # --------------------------
 # 15️⃣ Criar coluna de presos totais
 # --------------------------
-df["Qtd_Presos"] = df["Total Provisórios Masculinos"] + df["Total Provisórios Femininos"] + \
-                   df["Total Sentenciados Masculinos"] + df["Total Sentenciados Femininos"]
+df["Qtd_Presos"] = df["Total Provisórios Masculinos"] + df["Total Provisórios Femininos"] + df["Total Sentenciados Masculinos"] + df["Total Sentenciados Femininos"]
 
 # --------------------------
 # 16️⃣ Colunas de crimes
