@@ -4,7 +4,7 @@ import numpy as np
 # --------------------------
 # 1️⃣ Carregar planilha
 # --------------------------
-df = pd.read_excel("C:/Users/gabri/OneDrive/Documentos/Arquivos de progamação Gabriel Negreiros Saraiva/Projeto-Pesquisa-Aplicada---An-lise-de-Dados/Análise-2015/base-de-dados-infopen-2015.xlsx")
+df = pd.read_excel("2016_basefinal_depen_publicacao_revisado.xlsx")
 
 # --------------------------
 # 2️⃣ Estado do presídio
@@ -33,16 +33,6 @@ df["Tipo de Gestão"] = df["1.4. Gestão do estabelecimento:"].fillna("desconhec
     .str.split("(", n=1).str[0].str.strip().str.lower()
 
 # --------------------------
-# 6️⃣ Concebido ou adaptado
-# --------------------------
-df["Concebido ou Adaptado"] = df[
-    "1.7. O estabelecimento foi concebido como estabelecimento penal ou foi construído para outra utilização e foi adaptado?"
-].fillna("desconhecido") \
-    .str.lower() \
-    .str.extract(r'(concebido|adaptado)', expand=False) \
-    .fillna("desconhecido")
-
-# --------------------------
 # 7️⃣ Consultório médico
 # --------------------------
 df["Consultório Médico"] = df[
@@ -52,64 +42,35 @@ df["Consultório Médico"] = df[
 # --------------------------
 # 8️⃣ Total de presos provisórios masculinos
 # --------------------------
-colunas_provisorios_masc = [
-    "4.1.1.M. População prisional | presos provisórios | MASCULINO | Justiça Estadual",
-    "4.1.1.M. População prisional | presos provisórios | MASCULINO | Justiça Federal",
-    "4.1.1.M. População prisional | presos provisórios | MASCULINO | Outros (Justiça do Trabalho, Cível)"
-]
+colunas_provisorios_masc = [col for col in df.columns if col.startswith("4.1.1.M")]
+
 df["Total Provisórios Masculinos"] = df[colunas_provisorios_masc].apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
+
 
 # --------------------------
 # 9️⃣ Total de presos provisórios femininos
 # --------------------------
-colunas_provisorios_fem = [
-    "4.1.1.F. População prisional | presos provisórios | FEMININO | Justiça Estadual",
-    "4.1.1.F. População prisional | presos provisórios | FEMININO | Justiça Federal",
-    "4.1.1.F. População prisional | presos provisórios | FEMININO | Outros (Justiça do Trabalho, Cível)"
-]
+colunas_provisorios_fem = [col for col in df.columns if col.startswith("4.1.1.F")]
+
 df["Total Provisórios Femininos"] = df[colunas_provisorios_fem].apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
+
 
 # --------------------------
 # 10️⃣ Total de presos sentenciados masculinos
 # --------------------------
-colunas_sentenciados_masc = [
-    "4.1.2.M. População prisional | regime fechado | MASCULINO | Justiça Estadual",
-    "4.1.2.M. População prisional | regime fechado | MASCULINO | Justiça Federal",
-    "4.1.2.M. População prisional | regime fechado | MASCULINO | Outros (Justiça do Trabalho, Cível)",
-    "4.1.3.M. População prisional | regime semiaberto | MASCULINO | Justiça Estadual",
-    "4.1.3.M. População prisional | regime semiaberto | MASCULINO | Justiça Federal",
-    "4.1.3.M. População prisional | regime semiaberto | MASCULINO | Outros (Justiça do Trabalho, Cível)",
-    "4.1.4.M. População prisional | regime aberto | MASCULINO | Justiça Estadual",
-    "4.1.4.M. População prisional | regime aberto | MASCULINO | Justiça Federal",
-    "4.1.4.M. População prisional | regime aberto | MASCULINO | Outros (Justiça do Trabalho, Cível)"
-]
-
-# Filtra apenas colunas que existem no df
-colunas_sentenciados_masc = [c for c in colunas_sentenciados_masc if c in df.columns]
+colunas_sentenciados_masc = [col for col in df.columns if col.startswith("4.1.2.M")] + [col for col in df.columns if col.startswith("4.1.3.M")] + [col for col in df.columns if col.startswith("4.1.4.M")]
 
 df["Total Sentenciados Masculinos"] = df[colunas_sentenciados_masc].apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
+
 
 # --------------------------
 # 11️⃣ Total de presos sentenciados femininos
 # --------------------------
-colunas_sentenciados_fem = [
-    "4.1.2.F. População prisional | regime fechado | FEMININO | Justiça Estadual",
-    "4.1.2.F. População prisional | regime fechado | FEMININO | Justiça Federal",
-    "4.1.2.F. População prisional | regime fechado | FEMININO | Outros (Justiça do Trabalho, Cível)",
-    "4.1.3.F. População prisional | regime semiaberto | FEMININO | Justiça Estadual",
-    "4.1.3.F. População prisional | regime semiaberto | FEMININO | Justiça Federal",
-    "4.1.3.F. População prisional | regime semiaberto | FEMININO | Outros (Justiça do Trabalho, Cível)",
-    "4.1.4.F. População prisional | regime aberto | FEMININO | Justiça Estadual",
-    "4.1.4.F. População prisional | regime aberto | FEMININO | Justiça Federal",
-    "4.1.4.F. População prisional | regime aberto | FEMININO | Outros (Justiça do Trabalho, Cível)"
-]
+colunas_sentenciados_fem = [col for col in df.columns if col.startswith("4.1.2.F")] + [col for col in df.columns if col.startswith("4.1.3.F")] + [col for col in df.columns if col.startswith("4.1.4.F")]
 
-# Filtra apenas colunas que existem no df
-colunas_sentenciados_fem = [c for c in colunas_sentenciados_fem if c in df.columns]
+df["Total Sentenciados Femininos"] = df[colunas_sentenciados_fem].apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
 
-df["Total Sentenciados Femininos"] = df[colunas_sentenciados_fem] \
-    .apply(pd.to_numeric, errors='coerce').fillna(0).sum(axis=1)
-    
+
 # --------------------------
 # 12️⃣ Colunas de raça e sexo
 # --------------------------
@@ -125,34 +86,12 @@ colunas_raca_masculino = list(novos_nomes_masc.values())
 colunas_raca_feminino = list(novos_nomes_fem.values())
 
 for col in colunas_raca_masculino:
-    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(df[col].median())
+    col_num = pd.to_numeric(df[col], errors='coerce')
+    df[col] = col_num.fillna(col_num.median())
     
 for col in colunas_raca_feminino:
-    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(df[col].median())
-
-
-
-# --------------------------
-# 13️⃣ Colunas de estado civil
-# --------------------------
-colunas_estado_civil_masc = [col for col in df.columns if col.startswith("5.3.M")]
-colunas_estado_civil_fem = [col for col in df.columns if col.startswith("5.3.F")]
-
-novos_nomes_civil_masc = {col: col.split("|")[2].strip() + " " + col.split("|")[1].strip() for col in colunas_estado_civil_masc}
-novos_nomes_civil_fem = {col: col.split("|")[2].strip() + " " + col.split("|")[1].strip() for col in colunas_estado_civil_fem}
-
-df.rename(columns={**novos_nomes_civil_masc, **novos_nomes_civil_fem}, inplace=True)
-
-colunas_civil_masculino_renomeadas = list(novos_nomes_civil_masc.values())
-colunas_civil_feminino_renomeadas = list(novos_nomes_civil_fem.values())
-
-for col in colunas_civil_masculino_renomeadas:
-    df[col] = pd.to_numeric(df[col], errors='coerce')
-    df[col] = df[col].fillna(df[col].median())
-
-for col in colunas_civil_feminino_renomeadas:
-    df[col] = pd.to_numeric(df[col], errors='coerce')
-    df[col] = df[col].fillna(df[col].median())
+    col_num = pd.to_numeric(df[col], errors='coerce')
+    df[col] = col_num.fillna(col_num.median())
 
 
 # --------------------------
@@ -177,10 +116,12 @@ for col in colunas_idade_fem_renomeadas:
     df[col] = pd.to_numeric(df[col], errors='coerce')
     df[col] = df[col].fillna(df[col].median())
 
+
 # --------------------------
 # 15️⃣ Criar coluna de presos totais
 # --------------------------
 df["Qtd_Presos"] = df["Total Provisórios Masculinos"] + df["Total Provisórios Femininos"] + df["Total Sentenciados Masculinos"] + df["Total Sentenciados Femininos"]
+
 
 # --------------------------
 # 16️⃣ Colunas de crimes
@@ -206,6 +147,7 @@ for crime in crimes:
     df[crime] = 0
 df[crimes] = df["Qtd_Presos"].apply(lambda x: pd.Series(distribuir_crimes(x)))
 
+
 # --------------------------
 # 17️⃣ Coluna de reincidência criminal
 # --------------------------
@@ -216,21 +158,21 @@ def gerar_reincidencia(total):
 
 df["Reincidencia Criminal"] = df["Qtd_Presos"].apply(gerar_reincidencia)
 
+
 # --------------------------
 # 18️⃣ Selecionar colunas finais
 # --------------------------
 final_df = df[
     [
-        "UF","Sexo","Capacidade Total","Tipo de Gestão","Concebido ou Adaptado","Consultório Médico", "Total Provisórios Masculinos", "Total Provisórios Femininos", "Total Sentenciados Masculinos", "Total Sentenciados Femininos",
-        "Qtd_Presos", "Reincidencia Criminal"
-    ] 
-    + colunas_raca_masculino + colunas_raca_feminino
-    + colunas_idade_masc_renomeadas + colunas_idade_fem_renomeadas
-    + colunas_civil_masculino_renomeadas + colunas_civil_feminino_renomeadas
+        "UF", "Sexo", "Capacidade Total", "Tipo de Gestão", "Consultório Médico",
+        "Total Provisórios Masculinos", "Total Provisórios Femininos", "Total Sentenciados Masculinos", "Total Sentenciados Femininos", "Qtd_Presos", "Reincidencia Criminal"
+    ] + colunas_raca_masculino + colunas_raca_feminino
+      + colunas_idade_masc_renomeadas + colunas_idade_fem_renomeadas
+
 ]
 
 # --------------------------
 # 19️⃣ Salvar CSV final
 # --------------------------
-final_df.to_csv("csv_2015", index=False)
+final_df.to_csv("csv_2016", index=False)
 print("CSV gerado com sucesso!")
