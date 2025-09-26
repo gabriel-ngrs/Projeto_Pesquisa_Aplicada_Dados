@@ -4,7 +4,7 @@ import numpy as np
 # --------------------------
 # 1️⃣ Carregar planilha
 # --------------------------
-df = pd.read_excel("2016_basefinal_depen_publicacao_revisado.xlsx")
+df = pd.read_excel("C:\Programacao\Projeto Pesquisa Aplicada - Análise de Dados/analise-2016/2016_basefinal_depen_publicacao_revisado.xlsx")
 
 # --------------------------
 # 2️⃣ Estado do presídio
@@ -165,7 +165,7 @@ df["Reincidencia Criminal"] = df["Qtd_Presos"].apply(gerar_reincidencia)
 final_df = df[
     [
         "UF", "Sexo", "Capacidade Total", "Tipo de Gestão", "Consultório Médico",
-        "Total Provisórios Masculinos", "Total Provisórios Femininos", "Total Sentenciados Masculinos", "Total Sentenciados Femininos", "Qtd_Presos", "Reincidencia Criminal"
+        "Total Provisórios Masculinos", "Total Provisórios Femininos", "Total Sentenciados Masculinos", "Total Sentenciados Femininos", "Qtd_Presos", "Reincidencia Criminal","Tráfico de Drogas", "Crimes Contra Patrimônio", "Crimes Contra a Vida"
     ] + colunas_raca_masculino + colunas_raca_feminino
       + colunas_idade_masc_renomeadas + colunas_idade_fem_renomeadas
 
